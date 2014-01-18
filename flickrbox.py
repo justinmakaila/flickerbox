@@ -6,6 +6,34 @@ from optparse import OptionParser
 delimeterRegex = '!\*{3}!'
 delimeterString = '!***!'
 
+'''
+Updated meta object
+
+{
+  "_meta": {
+    "version": 8,
+    "nextImageId": 9
+  },
+
+  "_root": {
+    "photos": {
+      "cat.jpg": ["1", "2", "3"],
+      "horse.png": "4",
+      "dolphin.gif": "5"
+    },
+    "projects": {
+      "api": {
+        "app.js": "6",
+        ".gitignore": "7",
+        ".git": {
+          "index": "8"
+        }
+      }
+    }
+  }
+}
+'''
+
 fileNameKey = 'fileName'
 sizeKey = 'size'
 chunksKey = 'chunks'
@@ -32,6 +60,11 @@ def encodeFile(inputFile, metaFile, sourceGif, outputFile):
 
             with open(filenames[i]) as infile:
                 outfile.write(infile.read())
+                infile.close()
+
+        outfile.close()
+
+    exit("Encoding complete!")
 
 # Extracts the hidden data from input file
 def extractFile(inputFile):
@@ -40,11 +73,11 @@ def extractFile(inputFile):
 
     with open(inputFile, "rb") as f:
         fileContents = f.read()
-        jsonDict, loc = getJSON(fileContents)
+        jsonDict, startLocation = getJSON(fileContents)
 
-        print "Saving a file named", jsonDict[fileNameKey], "of length", jsonDict[sizeKey], "starting at index", loc
+        print "Saving a file named", jsonDict[fileNameKey], "of length", jsonDict[sizeKey], "starting at index", startLocation
 
-        fileStart = loc + len(delimeterString)
+        fileStart = startLocation + len(delimeterString)
         f.seek(fileStart, 0)
 
         outfileContents = f.read(jsonDict[sizeKey])
@@ -55,6 +88,8 @@ def extractFile(inputFile):
         out.close()
         f.close()
 
+    exit("Extraction complete!")
+
 # Extracts the JSON data hidden in the string, representing file contents
 def getJSON(string):
     regexString = '(?<=' + delimeterRegex + ')\{.*\}(?=' + delimeterRegex + ')'
@@ -63,7 +98,6 @@ def getJSON(string):
 
     if len(results) is not 0:
         match = results[0]
-        print match
 
         startIndex = string.index(match)
         resultsLength = len(match) + startIndex
@@ -83,13 +117,12 @@ def fail(message):
     sys.exit()
 
 parser = OptionParser()
-parser.add_option("-i", "--input", dest="inputFile", help="The file to use as input")
-parser.add_option("-x", "--extract", action="store_true", dest="extract", default=True, help="Flag set to extract the file")
 parser.add_option("-e", "--encode", action="store_false", dest="extract", default=False, help="Flag set to encode the input file into destination")
-parser.add_option("-d", "--destination", dest="destinationFile", help="The file to encode to")
-parser.add_option("-m", "--meta", dest="metaFile", help="The meta file to be encoded with the input file")
-parser.add_option("-o", "--output", dest="outputFile", help="The file to output to")
-parser.add_option("-g", "--gif", dest="gifFile", help="The gif to encode into")
+parser.add_option("-g", "--gif", dest="gifFile", metavar="GIF", help="The gif to encode into")
+parser.add_option("-i", "--input", dest="inputFile", metavar="INFILE", help="The file to use as input, either to encode or extract")
+parser.add_option("-m", "--meta", dest="metaFile", metavar="META", help="The meta file to be encoded with the input file")
+parser.add_option("-o", "--output", dest="outputFile", metavar="OUTFILE", help="The file to output to")
+parser.add_option("-x", "--extract", action="store_true", dest="extract", default=True, help="Flag set to extract the file")
 
 # flickrbox.py -e -i hiddenFile.txt -m meta.json -g ballin.gif -o output.gif
 # flickrbox.py -x -i output.gif
