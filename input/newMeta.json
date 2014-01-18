@@ -1,0 +1,25 @@
+/*
+{
+  "_meta": {
+    "version": 8,
+    "nextImageId": 9
+  },
+
+  "_root": {
+    "photos": {
+      "cat.jpg": ["1", "2", "3"],
+      "horse.png": "4",
+      "dolphin.gif": "5"
+    },
+    "projects": {
+      "api": {
+        "app.js": "6",
+        ".gitignore": "7",
+        ".git": {
+          "index": "8"
+        }
+      }
+    }
+  }
+}
+*/
