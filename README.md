@@ -1,4 +1,4 @@
-flickrbox
+flickerbox
 =========
 **Making use of your Flickr storage.**  
 *MHacks '14*
